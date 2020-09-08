@@ -17,7 +17,9 @@ namespace $.$$ {
 		view_window() : [ number , number ] {
 			
 			const kids = this.sub()
+			
 			if( kids.length < 3 ) return [ 0 , kids.length ]
+			if( this.$.$mol_print.active() ) return [ 0 , kids.length ]
 			
 			let [ min , max ] = $mol_mem_cached( ()=> this.view_window() ) ?? [ 0 , 0 ]
 
@@ -122,7 +124,26 @@ namespace $.$$ {
 		
 		@ $mol_mem
 		minimal_height() {
-			return this.sub().reduce( ( sum , view )=> sum + view.minimal_height() , 0 )
+
+			return this.sub().reduce( ( sum , view )=> {
+
+				try {
+
+					return sum + view.minimal_height() 
+
+				} catch( error ) {
+
+					if( error instanceof Promise ) {
+						$mol_atom2.current!.subscribe( error )
+					} else if( $mol_fail_catch( error ) ) {
+						console.error( error )
+					}
+
+					return sum
+				}
+
+			} , 0 )
+
 		}
 
 	}

@@ -17,12 +17,12 @@ namespace $ {
 		toString() : string {
 
 			const order = this.order ?? ''
-			const name = this.name ?? ''
+			const name = encodeURIComponent( this.name ?? '' )
 			const filter = this.filter ?? ''
 			
 			const value = this.values.map( ({ min , max }) => {
 
-				if( min === max ) return encodeURIComponent( min )
+				if( min !== undefined && min === max ) return encodeURIComponent( min )
 				
 				min = ( min === undefined ) ? '' : encodeURIComponent( min )
 				max = ( max === undefined ) ? '' : encodeURIComponent( max )
@@ -70,7 +70,8 @@ namespace $ {
 						
 					} else {
 	
-						const [ , order , name ] = /^([+-]?)(.*)$/.exec( text )
+						let [ , order , name ] = /^([+-]?)(.*)$/.exec( text )!
+						name = decodeURIComponent( name )
 	
 						query = new this( name , order as any )
 						
@@ -95,7 +96,7 @@ namespace $ {
 	
 					if( !range ) fail_at( offset )
 					
-					query.values.push( range )
+					query!.values.push( range! )
 					range = undefined
 	
 				} ,
@@ -109,7 +110,7 @@ namespace $ {
 				'fetch_open' : ( found , chunks , offset )=> {
 	
 					if( range ) {
-						query.values.push( range )
+						query!.values.push( range )
 						range = undefined
 					}
 					
@@ -127,11 +128,11 @@ namespace $ {
 				'fetch_close' : ()=> {
 	
 					if( range ) {
-						query.values.push( range )
+						query!.values.push( range )
 						range = undefined
 					}
 					
-					queries = stack.pop()
+					queries = stack.pop()!
 					query = Object.values( queries ).slice( -1 )[0]
 	
 				} ,
@@ -139,7 +140,7 @@ namespace $ {
 			} )
 	
 			if( range ) {
-				query.values.push( range )
+				query!.values.push( range )
 				range = undefined
 			}
 			

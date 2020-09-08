@@ -10,7 +10,10 @@ namespace $.$$ {
 		@ $mol_mem
 		current() {
 
-			if( this.uri() === this.$.$mol_state_arg.href() ) return true
+			const base = this.$.$mol_state_arg.href()
+			const target = new URL( this.uri() , base ).toString()
+
+			if( base === target ) return true
 			
 			const args = this.arg()
 			
@@ -36,6 +39,10 @@ namespace $.$$ {
 
 		minimal_height() {
 			return Math.max( super.minimal_height() || 40 )
+		}
+
+		theme() {
+			return this.current() ? '$mol_theme_base' : null
 		}
 		
 	}

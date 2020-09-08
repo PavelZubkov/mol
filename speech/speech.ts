@@ -80,8 +80,8 @@ namespace $ {
 				this.event_result( event )
 				return null
 			} )
-			api.onerror = $mol_fiber_root( ( event : Event & { error : string } )=> {
-				console.error( new Error( event.error ) )
+			api.onerror = $mol_fiber_root( ( event : Event )=> {
+				console.error( new Error( ( event as any ).error || event ) )
 				this.event_result( null )
 				return null
 			} )
@@ -106,21 +106,22 @@ namespace $ {
 		}
 
 		@ $mol_mem
-		static event_result( event? : Event & {
+		static event_result( event? : null | Event & {
 			results : Array< { transcript : string }[] & { isFinal : boolean } >
 		} ) {
-			this.hearer()
 			return event || null
 		}
 
 		@ $mol_mem
 		static recognitions() {
 
+			if( !this.hearing() ) return []
+
 			const result = this.event_result()
 			if( !result ) return []
 
-			const results = this.event_result().results
-			return ( [].slice.call( this.event_result().results ) as typeof results )
+			const results = this.event_result()?.results ?? []
+			return ( [].slice.call( results ) as typeof results )
 		}
 
 		@ $mol_mem
@@ -153,8 +154,9 @@ namespace $ {
 					if( !found ) continue
 					
 					new $mol_defer( ()=> {
-						this.commands_skip( i + 1 )
-						this.event_catch( found.slice( 1 ) )
+						if( this.event_catch( found.slice( 1 ) ) ) {
+							this.commands_skip( i + 1 )
+						}
 					} )
 					
 					return null
@@ -167,6 +169,7 @@ namespace $ {
 		
 		event_catch( found? : string[] ) {
 			console.log( found )
+			return false
 		}
 		
 		patterns() {

@@ -9,7 +9,7 @@ namespace $ {
 			const code = set[ name ]
 			const test = ( typeof code === 'string' ) ? new Function( '' , code ) as ()=> void : code
 			
-			$mol_test_all.push( $mol_log_group( name , test ) )
+			$mol_test_all.push( test )
 		}
 
 		$mol_test_schedule()
@@ -29,7 +29,12 @@ namespace $ {
 			await test( context )
 		}
 		
-		console.info( '$mol_test completed' , $mol_test_all.length )
+		$mol_ambient({}).$mol_log3_done({
+			place : '$mol_test' , 
+			message : 'Completed' ,
+			count : $mol_test_all.length ,
+		})
+		
 	}
 	
 	let scheduled = false
@@ -38,10 +43,10 @@ namespace $ {
 		if( scheduled ) return
 		scheduled = true
 
-		setTimeout( $mol_log_group( '$mol_test' , ()=> {
+		setTimeout( ()=> {
 			scheduled = false
  			$mol_test_run()
-		} ) , 500 )
+		} , 0 )
 		
 	}
 
@@ -91,5 +96,5 @@ namespace $ {
 		} ,
 
 	})
-	
+
 }

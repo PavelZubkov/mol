@@ -2,8 +2,6 @@ namespace $ {
 
 	export type $mol_file_type = 'file' | 'dir' | 'link'
 
-	export type $mol_file_content = string | $mol_buffer | Uint8Array
-
 	export interface $mol_file_stat {
 		type: $mol_file_type
 		size: number
@@ -49,17 +47,28 @@ namespace $ {
 
 		abstract ensure(next?: boolean): boolean
 
-		abstract watcher(): {
-			destructor(): void
+		watcher() {
+			console.warn('$mol_file_web.watcher() not implemented')
+
+			return {
+				destructor() {}
+			}
 		}
 		
-		exists( next? : boolean ) {
+		@ $mol_mem
+		exists( next? : boolean , force? : $mol_mem_force ) {
+
 			let exists = true
 			try {
 				this.stat()
 			} catch (error) {
-				if (error instanceof $mol_file_not_found) exists = false
-				else return $mol_fail_hidden(error)
+
+				if (error instanceof $mol_file_not_found) {
+					exists = false
+				} else {
+					return $mol_fail_hidden(error)
+				}
+				
 			}
 
 			if( next === undefined ) return exists
@@ -85,10 +94,10 @@ namespace $ {
 			return match ? match[ 1 ].substring( 1 ) : ''
 		}
 
-		abstract buffer( next? : $mol_buffer , force? : $mol_mem_force ): $mol_buffer
+		abstract buffer( next? : Uint8Array , force? : $mol_mem_force ): Uint8Array
 
 		text(next?: string, force?: $mol_mem_force) {
-			return this.buffer(next === undefined ? undefined : $mol_buffer.from(next), force).toString()
+			return $mol_charset_decode(this.buffer(next === undefined ? undefined : $mol_charset_encode(next), force))
 		}
 
 		fail(error: Error) {
@@ -96,7 +105,7 @@ namespace $ {
 			this.stat(error as any, $mol_mem_force_fail)
 		}
 
-		buffer_cached(buffer: $mol_buffer) {
+		buffer_cached(buffer: Uint8Array) {
 			const ctime = new Date()
 			const stat: $mol_file_stat = {
 				type: 'file',
@@ -111,7 +120,7 @@ namespace $ {
 		}
 
 		text_cached(content: string) {
-			this.buffer_cached($mol_buffer.from(content))
+			this.buffer_cached($mol_charset_encode(content))
 		}
 		
 		abstract sub(): $mol_file[]
@@ -120,7 +129,7 @@ namespace $ {
 
 		abstract relate( base?: $mol_file ): string
 		
-		abstract append( next : $mol_file_content ): void
+		abstract append( next : Uint8Array | string ): void
 		
 		find(
 			include? : RegExp ,
@@ -143,6 +152,13 @@ namespace $ {
 			}
 
 			return found
+		}
+
+		size() {
+			switch( this.type() ) {
+				case 'file': return this.stat().size
+				default: return 0
+			}
 		}
 		
 	}

@@ -15,11 +15,11 @@ namespace $ {
 			class $mol_style_sheet_test extends $mol_view {}
 
 			const sheet = $mol_style_sheet( $mol_style_sheet_test , {
-				color: 'red',
 				display: 'block',
+				zIndex: 1,
 			} )
 
-			$mol_assert_equal( sheet , '[mol_style_sheet_test] {\n\tcolor: red;\n\tdisplay: block;\n}\n' )
+			$mol_assert_equal( sheet , '[mol_style_sheet_test] {\n\tdisplay: block;\n\tz-index: 1;\n}\n' )
 			
 		},
 
@@ -42,15 +42,14 @@ namespace $ {
 		
 			class $mol_style_sheet_test extends $mol_view {}
 
-			const { calc , fit_content } = $mol_style_func
+			const { calc } = $mol_style_func
 			const { px , per } = $mol_style_unit
 
 			const sheet = $mol_style_sheet( $mol_style_sheet_test , {
 				width : calc( `${ per(100) } - ${ px(1) }` ),
-				height : fit_content( per(50) ),
 			} )
 
-			$mol_assert_equal( sheet , '[mol_style_sheet_test] {\n\twidth: calc(100% - 1px);\n\theight: fit-content(50%);\n}\n' )
+			$mol_assert_equal( sheet , '[mol_style_sheet_test] {\n\twidth: calc(100% - 1px);\n}\n' )
 			
 		},
 
@@ -77,10 +76,60 @@ namespace $ {
 			const { px } = $mol_style_unit
 
 			const sheet = $mol_style_sheet( $mol_style_sheet_test , {
-				padding : [ 0 , 'auto' ]
+				padding : [ px(5) , 'auto' ]
 			} )
 
-			$mol_assert_equal( sheet , '[mol_style_sheet_test] {\n\tpadding: 0 auto;\n}\n' )
+			$mol_assert_equal( sheet , '[mol_style_sheet_test] {\n\tpadding: 5px auto;\n}\n' )
+			
+		},
+
+		'sequenced values'() {
+		
+			class $mol_style_sheet_test extends $mol_view {}
+
+			const { url } = $mol_style_func
+
+			const sheet = $mol_style_sheet( $mol_style_sheet_test , {
+				background: {
+					image: [ [url('foo')], [url('bar')] ],
+				},
+			} )
+
+			$mol_assert_equal( sheet , '[mol_style_sheet_test] {\n\tbackground-image: url("foo"),url("bar");\n}\n' )
+			
+		},
+
+		'sequenced structs'() {
+		
+			class $mol_style_sheet_test extends $mol_view {}
+
+			const { rem } = $mol_style_unit
+			const { hsla } = $mol_style_func
+
+			const sheet = $mol_style_sheet( $mol_style_sheet_test , {
+				box: {
+					shadow: [
+						{
+							inset: true,
+							x: 0,
+							y: 0,
+							blur: rem(.5),
+							spread: 0,
+							color: 'red',
+						},
+						{
+							inset: false,
+							x: 0,
+							y: 0,
+							blur: rem(.5),
+							spread: 0,
+							color: 'blue',
+						},
+					],
+				},
+			} )
+
+			$mol_assert_equal( sheet , '[mol_style_sheet_test] {\n\tbox-shadow: inset 0 0 0.5rem 0 red,0 0 0.5rem 0 blue;\n}\n' )
 			
 		},
 
@@ -183,6 +232,31 @@ namespace $ {
 			} )
 
 			$mol_assert_equal( sheet , '[mol_style_sheet_test2_list_item] {\n\tcolor: red;\n\tdisplay: block;\n}\n' )
+			
+		},
+
+		'component element styles with block attribute value'() {
+		
+			class $mol_style_sheet_test extends $mol_view {
+				Item() { return new $mol_view }
+				attr() { return {
+					mol_theme: '$mol_theme_dark'
+				} }
+			}
+
+			const sheet = $mol_style_sheet( $mol_style_sheet_test , {
+				'@' : {
+					mol_theme: {
+						'$mol_theme_dark': {
+							Item: {
+								color: 'red',
+							},
+						},
+					},
+				},
+			} )
+
+			$mol_assert_equal( sheet , '[mol_style_sheet_test][mol_theme="$mol_theme_dark"] [mol_style_sheet_test_item] {\n\tcolor: red;\n}\n' )
 			
 		},
 

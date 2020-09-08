@@ -1,24 +1,25 @@
 [mol_textarea] {
-	flex: 1 1 auto;
+	flex: 1 0 auto;
 	display: flex;
 	flex-direction: column;
 	position: relative;
 	font-family: var(--mol_skin_font_monospace);
 	z-index: 0;
+	vertical-align: top;
 }
 
 [mol_textarea_view] {
 	max-width: none;
-	padding: 0 .5rem;
 	pointer-events: none;
 	white-space: pre-wrap;
 	z-index: 1;
 	box-shadow: none;
+	padding: 0;
 }
 
 [mol_textarea_edit] {
 	z-index: -1 !important;
-	padding: .5rem 1rem;
+	padding: .5rem .75rem;
 	position: absolute;
 	left: 0;
 	top: 0;

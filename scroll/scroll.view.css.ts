@@ -1,20 +1,28 @@
 namespace $.$$ {
 
-	const { per , rem } = $mol_style_unit
+	const { per , rem , px } = $mol_style_unit
 
 	$mol_style_define( $mol_scroll , {
 
-		display: 'block',
+		display: 'flex',
 		overflow: 'auto',
-		flex: 'auto',
+		flex: {
+			direction: 'column',
+			grow: 1,
+			shrink: 1,
+		},
+		outline: 'none',
 		alignSelf: 'stretch',
 		boxSizing: 'border-box',
 		willChange: 'scroll-position',
 		transform: 'translateZ(0)', // enforce gpu scroll in all agents
-		boxShadow: `inset 0 0 0 .5px ${ $mol_theme.line }`,
 		maxHeight: per(100),
 		maxWidth: per(100),
 		webkitOverflowScrolling: 'touch',
+
+		scrollbar: {
+			color: [ $mol_theme.line , 'transparent' ],
+		},
 	
 		'::-webkit-scrollbar': {
 			width: rem(.5),
@@ -22,15 +30,21 @@ namespace $.$$ {
 		},
 		
 		'::-webkit-scrollbar-corner': {
-			background: $mol_theme.line,
+			background: {
+				color: $mol_theme.line,
+			},
 		},
 
 		'::-webkit-scrollbar-track': {
-			background: $mol_theme.line,
+			background: {
+				color: 'transparent',
+			},
 		},
 
 		'::-webkit-scrollbar-thumb': {
-			background: $mol_theme.control,
+			background: {
+				color: $mol_theme.line,
+			},
 		},
 
 		'@media' : {

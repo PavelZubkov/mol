@@ -14,11 +14,11 @@ namespace $.$$ {
 		maxWidth: per(100) ,
 		maxHeight: per(100) ,
 		boxSizing: 'border-box' ,
-		background: $mol_theme.back ,
+		background: {
+			color: $mol_theme.back ,
+		},
 		color: $mol_theme.text ,
-		zIndex: '0' ,
-		overflow: 'hidden',
-		boxShadow: `inset 0 0 0 .5px ${ $mol_theme.line }` ,
+		zIndex: 0 ,
 
 		':focus': {
 			outline: 'none',
@@ -31,8 +31,13 @@ namespace $.$$ {
 			flex: 'none',
 			position: 'relative' ,
 			margin: 0 ,
-			minHeight: calc(`1.5em + 2rem`) ,
-			padding: rem(.5) ,
+			minHeight: rem(4),
+			padding: rem(.75) ,
+			background: {
+				color: $mol_theme.back ,
+			},
+			boxShadow: `0 0.5rem 0.5rem -0.5rem hsla(0,0%,0%,.25)` ,
+			zIndex: 1,
 		},
 
 		Title: {
@@ -40,16 +45,14 @@ namespace $.$$ {
 			flex: {
 				grow: 1000,
 				shrink: 1,
-				basis: $mol_style_unit.per(50),
+				basis: per(50),
 			},
-			padding: rem(.5),
+			minHeight: rem(2),
+			padding: [ rem(.5) , rem(.75) ],
 			wordBreak: 'normal',
 			cursor: 'default',
+			textShadow: '0 0',
 
-			':empty': {
-				display: 'none',
-			},
-	
 		},
 
 		Tools: {
@@ -57,10 +60,8 @@ namespace $.$$ {
 			flex: 'auto',
 			display: 'flex',
 			justifyContent: 'flex-end',
-
-			':empty': {
-				display: 'none',
-			},
+			alignItems: 'flex-start',
+			flexWrap: 'wrap',
 
 		},
 
@@ -68,7 +69,7 @@ namespace $.$$ {
 			flex: {
 				grow: 1000,
 				shrink: 1,
-				basis: $mol_style_unit.per(100),
+				basis: per(100),
 			},
 			margin: 0,
 		},
@@ -79,6 +80,11 @@ namespace $.$$ {
 			flex: 'none',
 			margin: 0,
 			overflow: 'hidden',
+			background: {
+				color: $mol_theme.back ,
+			},
+			boxShadow: `0 -0.5rem 0.5rem -0.5rem hsla(0,0%,0%,.25)` ,
+			zIndex: 1,
 		},	
 
 	} )

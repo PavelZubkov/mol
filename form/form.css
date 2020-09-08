@@ -1,10 +1,15 @@
+[mol_form] {
+	display: flex;
+	flex-direction: column;
+}
+
 [mol_form_bar_fields] {
 	display: flex;
 	flex-direction: column;
 }
 
 [mol_form_bar_fields] > * {
-	margin: .5rem;
+	margin: .75rem;
 }
 
 [mol_form_bar_buttons] {

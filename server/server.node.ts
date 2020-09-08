@@ -25,7 +25,11 @@ namespace $ {
 			).then(
 				( ports : number[] ) => {
 					server.listen( ports[ 0 ] )
-					console.log( this.messageStart( ports[ 0 ] ) )
+					this.$.$mol_log3_done({
+						place: `${ this }` ,
+						message: `Started` ,
+						location: `http://127.0.0.1:${ ports[0] }/`
+					})
 				}
 			)
 
@@ -58,10 +62,6 @@ namespace $ {
 
 		}
 
-		messageStart( port : number ) {
-			return `${ this } started at http://127.0.0.1:${ port }/`
-		}
-		
 		expressHandlers() : any[] {
 			return [
 				this.expressCompressor() ,
@@ -74,7 +74,7 @@ namespace $ {
 		}
 		
 		expressCompressor() {
-			return $node['compression']()
+			return $node['compression']() as unknown
 		}
 		
 		expressBodier() {
@@ -86,7 +86,7 @@ namespace $ {
 		}
 		
 		expressFiler() {
-			return $node['express'].static(
+			return $node.express.static(
 				$node.path.resolve( this.rootPublic() ) ,{
 					maxAge : this.cacheTime()
 				}
@@ -94,7 +94,7 @@ namespace $ {
 		}
 		
 		expressDirector() {
-			return $node['serve-index']( this.rootPublic() , { icons : true } )
+			return $node['serve-index']( this.rootPublic() , { icons : true } ) as unknown
 		}
 
 		expressIndex() {

@@ -18,17 +18,13 @@ namespace $ {
 			: ''
 		
 		@ $mol_mem
-		buffer( next? : $mol_buffer , force? : $mol_mem_force ) {
+		buffer( next? : Uint8Array , force? : $mol_mem_force ) {
 			if (next !== undefined) throw new Error(`Saving content not supported: ${this.path}`)
 
 			const response = $mol_fetch.response(this.path())
 			if (response.native.status === 404) throw new $mol_file_not_found(`File not found: ${this.path()}`)
 
-			return $mol_buffer.from(new Uint8Array(response.buffer()))
-		}
-
-		watcher(): { destructor(): void } {
-			throw new Error('$mol_file_web.watcher() not implemented')
+			return new Uint8Array(response.buffer())
 		}
 
 		@ $mol_mem
@@ -49,7 +45,7 @@ namespace $ {
 
 			this.parent().watcher()
 			
-			return stat
+			return stat!
 		}
 
 		resolve( path : string ) {
@@ -77,7 +73,7 @@ namespace $ {
 			throw new Error('$mol_file_web.relate() not implemented')
 		}
 		
-		append( next : $mol_file_content ) {
+		append( next : Uint8Array | string ) {
 			throw new Error('$mol_file_web.append() not implemented')
 		}
 	}

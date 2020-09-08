@@ -9,7 +9,7 @@ include \/mol/offline/install
 include \/mol/attach/demo
 include \/mol/bar/demo
 include \/mol/bench/demo
-include \/mol/book/demo
+include \/mol/book2/demo
 include \/mol/button/demo
 include \/mol/calendar/demo/holiday
 include \/mol/calendar/demo/selection
@@ -27,10 +27,13 @@ include \/mol/code/demo
 include \/mol/date/demo
 include \/mol/deck/demo
 include \/mol/dimmer/demo
+include \/mol/drag/demo
 include \/mol/expander/demo
 include \/mol/float/demo
 include \/mol/form/demo/bids
+include \/mol/frame/demo
 - include \/mol/grid/demo
+include \/mol/html/view/demo
 include \/mol/infinite/demo
 include \/mol/labeler/demo
 include \/mol/link/demo
@@ -56,9 +59,11 @@ include \/mol/section/demo
 include \/mol/select/demo/colors
 include \/mol/select/demo/month
 include \/mol/select/demo/priority
+include \/mol/select/list/demo
 include \/mol/speck/demo
 include \/mol/speech/demo
 include \/mol/string/demo
 include \/mol/switch/demo
 include \/mol/text/demo
 include \/mol/textarea/demo
+include \/mol/toolbar/demo

@@ -10,41 +10,70 @@ namespace $ {
 
 		let rules = [] as string[]
 
-		const make_class = ( prefix : string , suffix : string , config : typeof config0 )=> {
+		const block = $mol_dom_qname( $mol_ambient({}).$mol_func_name( Component ) )
+		const kebab = ( name : string )=> name.replace( /[A-Z]/g , letter => '-' + letter.toLowerCase() )
+
+		const make_class = ( prefix : string , path : string[] , config : typeof config0 )=> {
 
 			const props = [] as string[]
+
+			const selector = ( prefix : string , path : string[] )=> {
+				if( path.length === 0 ) return prefix || `[${ block }]`
+				return `${ prefix ? prefix + ' ' : '' }[${ block }_${ path.join('_') }]`
+			}
 			
 			for( const key of Object.keys( config ).reverse() ) {
 
 				if( /^[a-z]/.test(key) ) {
-
-					const name = key.replace( /[A-Z]/g , letter => '-' + letter.toLowerCase() )
-					const val = config[key]
 					
-					if( Array.isArray( val ) ) {
-						props.push(`\t${ name }: ${ val.join(' ') };\n`)
-					} else if( val.constructor === Object ) {
-						for( let suffix in val ) {
-							props.push(`\t${ name }-${ suffix }: ${ val[ suffix ] };\n`)
+					const addProp = ( keys : string[] , val : any  )=> {
+
+						if( Array.isArray( val ) ) {
+
+							if( val[0] && [ Array , Object ].includes( val[0].constructor ) ) {
+								val = val.map( v => {
+									return Object.entries( v ).map( ([ n , a ])=> {
+										if( a === true ) return kebab( n )
+										if( a === false ) return null
+										return String( a )
+									} ).filter( Boolean ).join(' ')
+								}).join( ',' )
+							} else {
+								val = val.join(' ')
+							}
+
+							props.push(`\t${ keys.join('-') }: ${ val };\n`)
+
+						} else if( val.constructor === Object ) {
+
+							for( let suffix in val ) {
+								addProp( [ ... keys  , kebab( suffix ) ] , val[ suffix ] )
+							}
+
+						} else {
+
+							props.push(`\t${ keys.join('-') }: ${ val };\n`)
+
 						}
-					} else {
-						props.push(`\t${ name }: ${ val };\n`)
+						
 					}
+
+					addProp( [ kebab(key) ] , config[key] )
 
 				} else if( /^[A-Z]/.test(key) ) {
 
-					make_class( prefix + '_' + key.toLowerCase() , suffix , config[key] as any )
+					make_class( prefix , [ ... path , key.toLowerCase() ] , config[key] )
 
 				} else if( key[0] === '$' ) {
 
-					make_class( prefix + '] [' + $mol_dom_qname( key ) , suffix , config[key] as any )
+					make_class( selector( prefix , path ) + ' [' + $mol_dom_qname( key ) + ']' , [] , config[key] )
 
 				} else if( key === '>' ) {
 
 					const types = config[key] as any
 
 					for( let type in types ) {
-						make_class( prefix + '] > [' + $mol_dom_qname( type ) , suffix , types[type] as any )
+						make_class( selector( prefix , path ) + ' > [' + $mol_dom_qname( type ) + ']' , [] , types[type] )
 					}
 
 				} else if( key === '@' ) {
@@ -53,7 +82,7 @@ namespace $ {
 
 					for( let name in attrs ) {
 						for( let val in attrs[name] ) {
-							make_class( prefix , suffix + '[' + name + '=' + JSON.stringify( val ) + ']' , attrs[name][val] as any )
+							make_class( selector( prefix , path ) + '[' + name + '=' + JSON.stringify( val ) + ']' , [] , attrs[name][val] )
 						}
 					}
 
@@ -65,7 +94,7 @@ namespace $ {
 
 						rules.push('}\n')
 						
-						make_class( prefix , suffix , media[query] as any )
+						make_class( prefix , path , media[query] )
 						
 						rules.push( `${ key } ${ query } {\n` )
 
@@ -73,19 +102,19 @@ namespace $ {
 
 				} else {
 
-					make_class( prefix , suffix + key , config[key] as any )
+					make_class( selector( prefix , path ) + key , [] , config[key] )
 
 				}
 
 			}
 			
 			if( props.length ) {
-				rules.push( `${ prefix }${ suffix } {\n${ props.reverse().join('') }}\n` )
+				rules.push( `${ selector( prefix , path ) } {\n${ props.reverse().join('') }}\n` )
 			}
 
 		}
 
-		make_class( '[' + $mol_dom_qname( Component.name ) , ']' , config0 )
+		make_class( '' , [] , config0 )
 
 		return rules.reverse().join('')
 

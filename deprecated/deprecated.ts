@@ -5,6 +5,8 @@ namespace $ {
 			Method extends ( this : Host , ... args : readonly any[] )=> any ,
 			Host extends {
 				[key in Field] : Method
+			} & {
+				$ : $mol_ambient_context
 			},
 			Field extends keyof Host ,
 		>(
@@ -14,10 +16,18 @@ namespace $ {
 		)=> {
 
 			const value = descr.value!
+			let warned = false
 			
 			descr.value = function $mol_deprecated_wrapper( this : Host , ... args : Parameters< Method > ) : ReturnType< Method >  {
 
-				console.warn( `${ host.constructor.name }::${ field } is deprecated. ${ message }` )
+				if( !warned ) {
+					this.$.$mol_log3_warn({
+						place: `${ host.constructor.name }::${ field }`,
+						message: `Deprecated` ,
+						hint: message ,
+					})
+					warned = true
+				}
 				
 				return value.call( this , ... args )
 			

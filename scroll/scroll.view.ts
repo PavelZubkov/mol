@@ -13,17 +13,17 @@ namespace $.$$ {
 		}
 
 		@ $mol_memo.method
-		_event_scroll_timer( next? : $mol_after_frame | null ) {
+		_event_scroll_timer( next? : $mol_after_timeout | null ) {
 			return next
 		}
 
 		event_scroll( next? : Event ) {
 			
-			if( this._event_scroll_timer() ) this._event_scroll_timer().destructor()
+			this._event_scroll_timer()?.destructor()
 
 			const el = this.dom_node() as HTMLElement
 			
-			this._event_scroll_timer( new $mol_after_frame( $mol_fiber_solid.func( ()=> {
+			this._event_scroll_timer( new $mol_after_timeout( 200 , $mol_fiber_solid.func( ()=> {
 
 				this.scroll_top( Math.max( 0 , el.scrollTop ) )
 				this.scroll_left( Math.max( 0 , el.scrollLeft ) )

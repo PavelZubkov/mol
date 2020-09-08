@@ -16,16 +16,19 @@ namespace $ {
 	export function $mol_mem<
 		Host extends object ,
 		Field extends keyof Host ,
-		Value ,
+		Prop extends Extract< Host[ Field ] , ( next? : any )=> any >,
 	>(
 		proto : Host ,
 		name : Field ,
-		descr? : TypedPropertyDescriptor< ( next? : Value , force? : $mol_mem_force )=> Value >
-	) : any {
+		descr? : TypedPropertyDescriptor< Prop >
+	) {
 
-		const value = descr!.value!
+		type Input = $mol_type_param< Prop , 0 >
+		type Output = $mol_type_result< Prop >
+
+		const orig = descr!.value!
 		
-		const store = new WeakMap< Host , $mol_atom2< Value > >()
+		const store = new WeakMap< Host , $mol_atom2< Output > >()
 
 		Object.defineProperty( proto , name + "()" , {
 			get : function() {
@@ -39,7 +42,7 @@ namespace $ {
 			if( cache ) return cache
 
 			let cache2 = new $mol_atom2
-			cache2.calculate = value.bind( host )
+			cache2.calculate = orig.bind( host )
 			cache2[ Symbol.toStringTag ] = `${ host }.${ name }()`
 			cache2.abort = ()=> {
 				store.delete( host )
@@ -52,31 +55,30 @@ namespace $ {
 
 			return cache2
 		}
+
+		function value( this : Host , next? : Input , force? : $mol_mem_force ) {
+				
+			if( next === undefined ) {
+				
+				const cache = get_cache( this )
+				if( force === $mol_mem_force_cache ) return cache.obsolete( Number.NaN )
+				
+				if( $mol_atom2.current ) return cache.get()
+				else return $mol_fiber.run( ()=> cache.get() )
+			
+			}
+			
+			return $mol_fiber.run( ()=> {
+				if( force === $mol_mem_force_fail ) return get_cache( this ).fail( next as any )
+				if( force !== $mol_mem_force_cache ) next = orig.call( this , next )
+				return get_cache( this ).put( next )
+			} )
+			
+		}
 		
 		return {
-
 			... descr || {} ,
-			
-			value( this : Host , next? : Value , force? : $mol_mem_force ) {
-				
-				if( next === undefined ) {
-					
-					const cache = get_cache( this )
-					if( force === $mol_mem_force_cache ) cache.obsolete( Number.NaN )
-					
-					if( $mol_atom2.current ) return cache.get()
-					else return $mol_fiber.run( ()=> cache.get() )
-				
-				}
-				
-				return $mol_fiber.run( ()=> {
-					if( force === $mol_mem_force_fail ) return get_cache( this ).fail( next as any )
-					if( force !== $mol_mem_force_cache ) next = value.call( this , next )
-					return get_cache( this ).put( next )
-				} )
-				
-			}
-
+			value : Object.assign( value , { orig } )
 		}
 
 	}
